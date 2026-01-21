@@ -1,0 +1,487 @@
+---
+title: "EFICIENCIA DE USO DE AGUA EN QUINCE GENOTIPOS DE PAPA (Solanum tuberosum L.) BAJO CONDICIONES DE ESTRÉS HÍDRICO POR SEQUÍA"
+author: "FLAVIO LOZANO ISLA"
+format:
+  html:
+    toc: true
+    toc-expand: true
+    toc-depth: 4
+    toc-location: left
+    number-sections: true
+    self-contained: true
+    code-fold: true
+    output-file: "ESM"
+editor_options: 
+  chunk_output_type: console
+execute: 
+  warning: false
+  message: false
+  echo: true
+---
+
+# Project Setup
+
+```{r}
+#| label:  setup
+
+source('https://inkaverse.com/setup.r')
+```
+
+# Data import
+
+https://docs.google.com/spreadsheets/d/15r7ZwcZZHbEgltlF6gSFvCTFA-CFzVBWwg3mFlRyKPs/edit?gid=1263018298#gid=1263018298
+
+```{r}
+gs <- "https://docs.google.com/spreadsheets/d/15r7ZwcZZHbEgltlF6gSFvCTFA-CFzVBWwg3mFlRyKPs/edit?gid=172957346#gid=172957346" %>% 
+  as_sheets_id()
+
+fb <- gs %>% 
+  range_read(ss = .,sheet = "fb") %>% 
+  mutate(across(1:bloque, ~as.factor(.)))
+
+str(fb)
+
+
+  
+```
+# DESARROLLO
+
+## FACTORES
+
+1. Riego
+2. Genotipo
+
+## VARIABLES
+Soil Plant Analysis Development(spad_29)
+Soil Plant Analysis Development(spad_83)
+Relative Water Content (%) (rwc_84)
+Osmotic Potential (Mpa) (op_84)
+Leaf Dry Weight (g) (leafdw)
+Stem Dry Weight (g) (stemdw)
+Root Dry Weight (g) (rootdw)
+Tuber Dry Weight (g) (tubdw)
+Biomass Dry Weight (g) (biomdw)
+Harvest Index (hi)
+Total Transpiration (l) (ttrans)
+Water Use Efficiency (g/l) (wue)
+Tuber Water Use Efficiency (g/l) (twue)
+Leaf Area (cm2) (lfa)
+
+# Analizando Varibles
+
+## Soil Plant Analysis Development(spad_29)
+
+Modelo
+
+$$ spad_ 29 = \mu + bloque + riego + geno + riego*geno + e $$
+```{r}
+md <- lmer(formula = spad_29 ~ 0 + (1|bloque) + riego*geno
+           ,data = fb)
+anova(md)
+
+library(car)
+
+Anova(md)
+
+```
+
+
+# Comparación de medias 
+
+```{r}
+library(emmeans)
+
+# Medias ajustadas para la interacción
+emm <- emmeans(md, ~ riego : geno)
+
+# Comparación de medias con ajuste de Tukey
+comp <- pairs(emm, adjust = "tukey")
+
+comp
+library(multcomp)
+
+# Letras de significancia
+letras <- multcomp::cld(
+  emm,
+  adjust = "tukey",
+  Letters = letters
+)
+
+letras
+library(dplyr)
+
+# Limpieza del data frame con letras
+letras_df <- letras %>%
+  as.data.frame() %>%
+  mutate(
+    riego  = factor(riego, levels = unique(fb$riego)),
+    geno = factor(geno, levels = unique(fb$geno)),
+    .group = trimws(.group)
+  )
+
+```
+
+
+```{r}
+library(inti)
+letras_df %>% 
+  plot_smr(x = "geno", y = "emmean", group = "riego"
+           , error = "SE", sig = ".group")
+
+```
+
+# Soil Plant Analysis Development(spad_83)
+
+Modelo
+
+$$ spad_83 = \mu + bloque + riego + geno + riego*geno + e $$
+
+```{r}
+md <- lmer(formula = spad_83 ~ 0 + (1|bloque) + riego*geno
+           ,data = fb)
+anova(md)
+
+library(car)
+
+Anova(md)
+
+```
+# Comparación de medias 
+
+```{r}
+library(emmeans)
+
+# Medias ajustadas para la interacción
+emm <- emmeans(md, ~ riego : geno)
+
+# Comparación de medias con ajuste de Tukey
+comp <- pairs(emm, adjust = "tukey")
+
+comp
+library(multcomp)
+
+# Letras de significancia
+letras <- multcomp::cld(
+  emm,
+  adjust = "tukey",
+  Letters = letters
+)
+
+letras
+library(dplyr)
+
+# Limpieza del data frame con letras
+letras_df <- letras %>%
+  as.data.frame() %>%
+  mutate(
+    riego  = factor(riego, levels = unique(fb$riego)),
+    geno = factor(geno, levels = unique(fb$geno)),
+    .group = trimws(.group)
+  )
+
+```
+
+
+```{r}
+library(inti)
+letras_df %>% 
+  plot_smr(x = "geno", y = "emmean", group = "riego", error = "SE", sig = ".group")
+
+```
+
+# Relative Water Content (%) (rwc_84)
+
+
+Modelo
+
+$$ rwc_84 = \mu + bloque + riego + geno + riego*geno + e $$
+
+```{r}
+md <- lmer(formula = rwc_84 ~ 0 + (1|bloque) + riego*geno
+           ,data = fb)
+anova(md)
+
+library(car)
+
+Anova(md)
+
+```
+```{r}
+library(emmeans)
+
+emm <- emmeans(md, ~ riego : geno)
+
+comp <- pairs(emm, adjust = "tukey")
+
+comp
+
+library(multcomp)
+
+letras <- multcomp::cld(
+  emm,
+  adjust = "tukey",
+  Letters = letters
+)
+
+letras
+
+library(dplyr)
+
+letras_df <- letras %>%
+  as.data.frame() %>%
+  mutate(
+    riego  = factor(riego, levels = unique(fb$riego)),
+    geno = factor(geno, levels = unique(fb$geno)),
+    .group = trimws(.group)
+  )
+
+```
+
+
+```{r}
+library(inti)
+letras_df %>% 
+  plot_smr(x = "geno", y = "emmean", group = "riego"
+           , error = "SE", sig = ".group")
+
+```
+
+
+# Osmotic Potential (Mpa) (op_84)
+
+
+Modelo
+
+$$ op_84 = \mu + bloque + riego + geno + riego*geno + e $$
+
+```{r}
+md <- lmer(formula = op_84 ~ 0 + (1|bloque) + riego*geno
+           ,data = fb)
+anova(md)
+
+library(car)
+
+Anova(md)
+
+```
+# Comparacion de medias
+
+```{r}
+library(emmeans)
+
+emm <- emmeans(md, ~ riego : geno)
+
+comp <- pairs(emm, adjust = "tukey")
+
+comp
+
+library(multcomp)
+
+letras <- multcomp::cld(
+  emm,
+  adjust = "tukey",
+  Letters = letters
+)
+
+letras
+
+library(dplyr)
+
+letras_df <- letras %>%
+  as.data.frame() %>%
+  mutate(
+    riego  = factor(riego, levels = unique(fb$riego)),
+    geno = factor(geno, levels = unique(fb$geno)),
+    .group = trimws(.group)
+  )
+
+```
+
+
+```{r}
+library(inti)
+letras_df %>% 
+  plot_smr(x = "geno", y = "emmean", group = "riego"
+           , error = "SE", sig = ".group")
+
+```
+
+# Leaf Dry Weight (g) (leafdw)
+
+Modelo
+
+$$ leafdw = \mu + bloque + riego + geno + riego*geno + e $$
+
+```{r}
+md <- lmer(formula = leafdw ~ 0 + (1|bloque) + riego*geno
+           ,data = fb)
+anova(md)
+
+library(car)
+
+Anova(md)
+
+```
+
+```{r}
+library(emmeans)
+
+emm <- emmeans(md, ~ riego : geno)
+
+comp <- pairs(emm, adjust = "tukey")
+
+comp
+
+library(multcomp)
+
+letras <- multcomp::cld(
+  emm,
+  adjust = "tukey",
+  Letters = letters
+)
+
+letras
+
+library(dplyr)
+
+letras_df <- letras %>%
+  as.data.frame() %>%
+  mutate(
+    riego  = factor(riego, levels = unique(fb$riego)),
+    geno = factor(geno, levels = unique(fb$geno)),
+    .group = trimws(.group)
+  )
+```
+
+```{r}
+library(inti)
+letras_df %>% 
+  plot_smr(x = "geno", y = "emmean", group = "riego"
+           , error = "SE", sig = ".group")
+```
+
+# PCA
+
+De la base de datos fb, hacer un PCA agrupado por densidad y porcinaza usando el paquete FactoMineR ESTE ES EL MODELO GUIA: PCA(fb[,6:14], quali.sup = c(2,3), graph = T.
+```{r}
+library(FactoMineR)
+PCA(fb[,5:18], quali.sup = c(1,2), graph = TRUE)
+```
+
+```{r}
+library(dplyr)
+
+dmv <- fb %>%
+  group_by(riego, geno) %>% 
+  summarise(
+    across(
+      where(is.numeric),
+      ~ mean(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  ) %>% 
+  unite("trat", c(riego, geno), remove = F) %>% 
+  column_to_rownames("trat")
+
+head(dmv)
+str(dmv)
+
+pca <- PCA(X = dmv, scale.unit = T
+           , quali.sup = c(1, 2))
+var <- plot(pca, choix = "var")
+ind <- plot(pca, choix = "ind")
+
+library(cowplot)
+
+list(var, ind) %>% 
+  plot_grid(plotlist = ., ncol = 2, labels = "auto")
+
+```
+
+```{r}
+#| eval: false
+
+dtx <- fb
+
+# str(dtx)
+  
+dm <- PCA(X = dtx, scale.unit = T, graph = T)
+
+fviz_pca_var(dm, col.var = "cos2",
+             gradient.cols = c("#7570b3",  "#d95f02", "#e7298a", "#1b9e77", "#66a61e"), 
+             repel = TRUE
+             )
+
+var <- plot.PCA(mv, choix = c("var"), cex=0.7, )
+
+ind <- plot.PCA(mv, choix = c("ind")
+                , cex = 0.5
+                , label = "ind"
+                , invisible = "quali"
+                )
+
+plot <- list(var, ind) %>% 
+  plot_grid(plotlist = ., ncol = 2, labels = "auto") %>% 
+  ggsave(plot = ., "manuscript/PCA.jpg", units = "cm"
+                , width = 30, height = 15)
+
+plot %>% include_graphics()
+
+pcainfo <- factoextra::get_pca(mv)
+
+sink("files/pca.txt")
+cat("\nPrincipal Component Analysis Results\n")
+summary(mv, nbelements = Inf, nb.dec = 2)
+cat("\nCorrelations between variables and dimensions\n")
+mv$cor
+cat("\nContributions of the variables\n")
+mv$contrib
+sink()
+
+cls <- HCPC(mv, graph = F
+            , nb.clust = -1
+            , metric = "euclidean"
+            , method = "ward"
+            )
+
+sink("files/hcpc.txt")
+cat("\nHierarchical Clustering on Principal Components\n")
+cls$call$t$tree
+cls$desc.ind
+cls$desc.var
+sink()
+
+map <- \() {plot(cls, choice = "map", draw.tree = FALSE)}
+cir <- fviz_dend(cls, type = "circular", cex = 0.5)
+
+plot <- list(map, cir) %>% 
+  plot_grid(plotlist = ., ncol = 2, labels = "auto") %>% 
+  ggsave(plot = ., "manuscript/HCPC.jpg", units = "cm"
+                , width = 30, height = 15)
+
+plot %>% include_graphics()
+```
+
+
+# CORRELACION
+
+```{r}
+library(GGally)
+
+ggplot(dmv, aes(x = NULL, y = NULL)) + geom_blank() +
+  theme_void()
+
+ggcorr(dmv %>% dplyr::select(where(is.numeric)))
+
+```
+
+
+
+
+
+
+
+
+
+
+
